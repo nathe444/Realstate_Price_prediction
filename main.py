@@ -12,8 +12,6 @@ df3 = df2.dropna()
 
 df3['bhk'] = df3['size'].apply(lambda x: int(x.split(' ')[0]))
 
-# print(df3.total_sqft.unique())
-
 
 def convertRange(x):
    array = x.split('-')
@@ -27,6 +25,20 @@ def convertRange(x):
 df4 = df3.copy()
 df4['total-sqft'] = df4['total_sqft'].apply(convertRange)
 
-print(df4['total-sqft'].unique)
+df5 = df4.copy()
+
+
+df5['price_per_sqft'] = df5['price'].apply(float) * 100000 / df5['total-sqft']
+
+df5.location = df5['location'].apply(lambda x: x.strip())
+
+location_stats = df5.groupby('location')['location'].agg('count').sort_values(ascending=False)
+
+otherlocation = location_stats[location_stats<=10] 
+#This part creates a boolean mask (a Series of True and False values) by applying the condition < 10 to each value in location_stats.
+
+df5['location'] = df5['location'].apply(lambda x:'other' if x  in otherlocation else x)
+
+print(len(df5.location.unique()))
 
 
